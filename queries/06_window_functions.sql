@@ -122,7 +122,6 @@ JOIN Categories c
 -- Task 10
 -- Find products whose price is above the category average
 -- Use window functions only
-
 WITH products_by_category AS (
 	SELECT
 		p.name AS product,
@@ -296,3 +295,72 @@ WITH selling_products_by_category AS (
 SELECT category, product, quantity_sold
 FROM selling_products_by_category
 WHERE rk=1;
+
+
+-- Task 18
+-- Find customers whose spending increased compared with their previous order
+
+WITH customers_spending AS (
+	SELECT 
+		CONCAT(c.first_name, ' ', c.last_name) AS customer,
+        o.total_amount,
+        COALESCE(LAG(o.total_amount) OVER (PARTITION BY c.id ORDER BY o.order_date), 0) AS previous_order
+	FROM Orders o
+    JOIN Customers c
+		ON c.id=o.customer_id
+)
+SELECT 
+	customer, total_amount, previous_order
+FROM customers_spending
+WHERE total_amount>previous_order
+ORDER BY customer;
+
+
+-- Task 19
+-- Create a sales leaderboard
+-- Display: customer, orders count, total spent, rank
+
+WITH sales_leaderboard AS (
+	SELECT 
+		CONCAT(c.first_name, ' ', c.last_name) AS customer,
+        COUNT(o.id) AS orders_count,
+        SUM(o.total_amount) AS total_spent
+	FROM Orders o
+    JOIN Customers c
+		ON c.id=o.customer_id
+	GROUP BY c.id, c.first_name, c.last_name
+)
+SELECT 
+	customer,
+    orders_count,
+    total_spent,
+    RANK() OVER (ORDER BY total_spent DESC,
+						orders_count DESC) AS "rank"
+FROM sales_leaderboard;
+
+
+-- Task 20
+-- Create a complete customer analytics report
+-- Display:
+-- | Customer | Orders | Total Spent | Avg Order | Rank | Previous Spending |
+
+WITH customer_analytics_report AS (
+	SELECT 
+		CONCAT(c.first_name, ' ', c.last_name) AS customer,
+        COUNT(o.id) AS orders,
+        SUM(o.total_amount) AS total_spent,
+        ROUND(AVG(o.total_amount), 2) AS avg_order
+	FROM Orders o
+    JOIN Customers c
+		ON c.id=o.customer_id
+	GROUP BY c.id, c.first_name, c.last_name
+)
+SELECT 
+	customer,
+    orders,
+    total_spent,
+    avg_order,
+    RANK() OVER (ORDER BY total_spent DESC, orders DESC) AS "rank",
+	LAG(total_spent) OVER (ORDER BY total_spent DESC, orders DESC) AS previous_spending
+FROM customer_analytics_report
+ORDER BY total_spent DESC, orders DESC;
