@@ -86,3 +86,56 @@ In this case, it is not possible to use an index.
 The `%` symbol at the beginning of the pattern means there is no fixed starting point for the string, so a B-tree index cannot determine the search range.
 As a result, MySQL performs a full table scan (`type = ALL`) and checks the condition for every row (Using where).
 This is precisely why such a query typically runs much more slowly, especially on large tables.
+
+
+# Task 6
+## Find all orders placed in 2025. <br> Compare: YEAR(order_date) and date range (BETWEEN) <br> Determine which query is more efficient.
+
+```sql
+EXPLAIN
+SELECT *
+FROM Orders
+WHERE YEAR(order_date)=2025;
+```
+
+![Alt text](../docs/task_6_1.png)
+
+The first query performs a full table scan because the `YEAR()` function is applied to the indexed column. Since MySQL must evaluate the function for every row, the B-tree index on `order_date` cannot be used.
+
+
+```sql
+EXPLAIN
+SELECT *
+FROM Orders
+WHERE order_date 
+BETWEEN '2025-01-01' AND '2025-12-31';
+```
+
+![Alt text](../docs/task_6_2.png)
+
+The second query uses a sargable range predicate (BETWEEN), which allows MySQL to use the `order_date index`. However, in this execution plan the optimizer still chooses a full table scan `(type = ALL)`, `(key = NULL)`. This is because the query returns a large portion of the table.
+
+---
+
+The range predicate is generally more efficient because it allows index range scans. In this particular dataset, however, MySQL estimates that a full table scan has a lower execution cost
+
+
+# Task 7
+## Retrieve all customers together with their order count. <br> Use EXPLAIN and identify which indexes are used in the join.
+
+```sql
+EXPLAIN
+SELECT c.id, COUNT(o.id)
+FROM customers c
+LEFT JOIN orders o
+    ON c.id=o.customer_id
+GROUP BY c.id;
+```
+
+![Alt text](../docs/task_7.png)
+
+EXPLAIN shows that MySQL scans the customers table using the PRIMARY index (type = index). Since the query groups only by the primary key and selects only `c.id`, the primary index covers all required columns from the customers table. Therefore, the optimizer performs a covering index scan (Using index).
+
+The orders table is accessed using the `idx_orders_customer` index with the `ref` access type. For each customer, MySQL efficiently looks up matching orders using the join condition `o.customer_id = c.id`.
+
+The optimizer estimates approximately 10 matching orders per customer `(rows = 10)`.
