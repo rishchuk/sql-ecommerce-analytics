@@ -1,14 +1,21 @@
 -- Task 1
 -- Retrieve the total number of customers
 
-SELECT COUNT(*) AS total_customer FROM Customers;
+SELECT
+    COUNT(*) AS total_customer
+FROM Customers;
 
 
 -- Task 2
 -- Count how many products belong to each category
 
-SELECT c.name, COUNT(p.id) AS product_count FROM Categories c
-JOIN Products p ON c.id=p.category_id GROUP BY c.id
+SELECT
+    c.name,
+    COUNT(p.id) AS product_count
+FROM Categories c
+JOIN Products p
+    ON c.id = p.category_id
+GROUP BY c.id, c.name
 ORDER BY product_count DESC;
 
 
@@ -16,39 +23,62 @@ ORDER BY product_count DESC;
 -- Calculate the average product price for each category.
 -- Display: category name, average price, Round to 2 decimal places
 
-SELECT c.name, ROUND(AVG(p.price), 2) AS average_price FROM Categories c
-JOIN Products p ON c.id=p.category_id GROUP BY c.id, c.name;
+SELECT
+    c.name,
+    ROUND(AVG(p.price), 2) AS average_price
+FROM Categories c
+JOIN Products p
+    ON c.id = p.category_id
+GROUP BY c.id, c.name;
 
 
 -- Task 4
 -- Find the most expensive product price in every category.
 -- Display: category, maximum price
 
-SELECT c.name, MAX(p.price) AS max_price FROM Categories c
-JOIN Products p ON c.id=p.category_id GROUP BY c.id, c.name;
+SELECT
+    c.name,
+    MAX(p.price) AS max_price
+FROM Categories c
+JOIN Products p
+    ON c.id = p.category_id
+GROUP BY c.id, c.name;
 
 
 -- Task 5
 -- Find the cheapest product price in every category.
 -- Display: category, minimum price
 
-SELECT c.name, MIN(p.price) AS min_price FROM Categories c
-JOIN Products p ON c.id=p.category_id GROUP BY c.id, c.name;
+SELECT
+    c.name,
+    MIN(p.price) AS min_price
+FROM Categories c
+JOIN Products p
+    ON c.id = p.category_id
+GROUP BY c.id, c.name;
 
 
 -- Task 6
 -- Calculate the total stock quantity for every category.
 -- Display: category, total stock
 
-SELECT c.name, SUM(p.stock_quantity) AS total_quantity FROM Categories c
-JOIN Products p ON c.id=p.category_id GROUP BY c.id, c.name;
+SELECT
+    c.name,
+    SUM(p.stock_quantity) AS total_quantity
+FROM Categories c
+JOIN Products p
+    ON c.id = p.category_id
+GROUP BY c.id, c.name;
 
 
 -- Task 7
 -- Calculate total sales amount for each order.
 -- Display: order id, total amount. Use Order_Items
 
-SELECT order_id, SUM(quantity*unit_price) AS total_amount FROM Order_Items
+SELECT
+    order_id,
+    SUM(quantity * unit_price) AS total_amount
+FROM Order_Items
 GROUP BY order_id;
 
 
@@ -56,79 +86,125 @@ GROUP BY order_id;
 -- Calculate the total amount spent by each customer.
 -- Display: customer name, total spent, Sort by total spent (descending)
 
-SELECT CONCAT(c.first_name, ' ', c.last_name) AS customer_name, 
+SELECT
+    CONCAT(c.first_name, ' ', c.last_name) AS customer_name,
 	SUM(oi.quantity * oi.unit_price) AS total_spent
-FROM Orders o JOIN Customers c ON c.id=o.customer_id
-JOIN Order_Items oi ON o.id = oi.order_id
-GROUP BY c.id ORDER BY total_spent DESC;
+FROM Orders o
+JOIN Customers c
+    ON c.id = o.customer_id
+JOIN Order_Items oi
+    ON o.id = oi.order_id
+GROUP BY
+    c.id,
+    c.first_name,
+    c.last_name
+ORDER BY total_spent DESC;
 
 
 -- Task 9
 -- Count the number of orders for each customer.
 -- Display: customer, order count, Include customers without orders
 
-SELECT  CONCAT(c.first_name, ' ', c.last_name) AS customer_name, 
+SELECT
+    CONCAT(c.first_name, ' ', c.last_name) AS customer_name,
 	COUNT(o.id) AS order_count
-FROM Customers c LEFT JOIN Orders o ON c.id=o.customer_id
-GROUP BY c.id;
+FROM Customers c
+LEFT JOIN Orders o
+    ON c.id = o.customer_id
+GROUP BY
+    c.id,
+    c.first_name,
+    c.last_name;
 
 
 -- Task 10
 -- Find customers who placed more than 3 orders.
 -- Display: customer, order count
 
-SELECT CONCAT(c.first_name, ' ', c.last_name) AS customer_name, 
+SELECT
+    CONCAT(c.first_name, ' ', c.last_name) AS customer_name,
 	COUNT(o.total_amount) AS order_count
-FROM Orders o JOIN Customers c ON c.id=o.customer_id
-GROUP BY c.id HAVING order_count>3;
+FROM Orders o
+JOIN Customers c
+    ON c.id=o.customer_id
+GROUP BY
+    c.id,
+    c.first_name,
+    c.last_name
+HAVING order_count > 3;
 
 
 -- Task 11
 -- Calculate the average order value.
 -- Display: average_order_value. Use Order_Items.
 
-SELECT ROUND(AVG(order_total), 2) AS average_order
+SELECT
+    ROUND(AVG(order_total), 2) AS average_order
 FROM (
-	SELECT order_id, SUM(quantity * unit_price) AS order_total
-    FROM Order_Items GROUP BY order_id
+	SELECT
+	    order_id,
+	    SUM(quantity * unit_price) AS order_total
+    FROM Order_Items
+    GROUP BY order_id
 ) AS order_totals;
 
 -- Task 12
 -- Count how many orders have each status.
 -- Display: status, order count
 
-SELECT status, COUNT(*) as order_count FROM Orders GROUP BY status;
+SELECT
+    status,
+    COUNT(*) as order_count
+FROM Orders
+GROUP BY status;
 
 
 -- Task 13
 -- Calculate the total payment amount grouped by payment method.
 -- Display: payment method, total amount
 
-SELECT payment_method, SUM(amount) as total_amount
-FROM Payments GROUP BY payment_method;
+SELECT
+    payment_method,
+    SUM(amount) as total_amount
+FROM Payments
+GROUP BY payment_method;
 
 
 -- Task 14
 -- Find payment methods whose total amount exceeds 5000.
 
-SELECT payment_method, SUM(amount) as total_amount
-FROM Payments GROUP BY payment_method HAVING total_amount>5000;
+SELECT
+    payment_method,
+    SUM(amount) as total_amount
+FROM Payments
+GROUP BY payment_method
+HAVING SUM(amount) > 5000;
 
 
 -- Task 15
 -- Find categories containing more than 50 products.
 
-SELECT c.name, COUNT(p.id) as count_prod FROM Products p
-JOIN Categories c ON c.id=p.category_id
-GROUP BY c.id HAVING count_prod>50;
+SELECT
+    c.name,
+    COUNT(p.id) as count_prod
+FROM Products p
+JOIN Categories c
+    ON c.id = p.category_id
+GROUP BY c.id, c.name
+HAVING COUNT(p.id) > 50;
 
 
 -- Task 16
 -- Calculate total revenue generated by every product.
 -- Display: product name, revenue. Sort by revenue (descending)
 
-SELECT p.name, SUM(oi.quantity*oi.unit_price) AS revenue FROM Order_Items oi
-JOIN Products p ON p.id=oi.product_id GROUP BY oi.product_id
+SELECT
+    p.name,
+    SUM(oi.quantity*oi.unit_price) AS revenue
+FROM Order_Items oi
+JOIN Products p
+    ON p.id = oi.product_id
+GROUP BY p.id, p.name
 ORDER BY revenue DESC;
 
 
@@ -136,29 +212,50 @@ ORDER BY revenue DESC;
 -- Find the average quantity purchased for every product.
 -- Display: product, average quantity
 
-SELECT p.name, ROUND(AVG(oi.quantity), 2) as average_quantity FROM Order_Items oi
-JOIN Products p ON p.id=oi.product_id GROUP BY oi.product_id;
+SELECT
+    p.name,
+    ROUND(AVG(oi.quantity), 2) as average_quantity
+FROM Order_Items oi
+JOIN Products p
+    ON p.id = oi.product_id
+GROUP BY p.id, p.name;
 
 
 -- Task 18
 -- Find customers whose total spending exceeds 30000.
 
-SELECT CONCAT(c.first_name, ' ', c.last_name) AS customer_name, 
+SELECT
+    CONCAT(c.first_name, ' ', c.last_name) AS customer_name,
 	SUM(oi.quantity * oi.unit_price) AS total_spending
-FROM Orders o JOIN Customers c ON c.id=o.customer_id
-JOIN Order_Items oi ON o.id = oi.order_id
-GROUP BY c.id HAVING(total_spending>30000);
+FROM Orders o
+JOIN Customers c
+    ON c.id = o.customer_id
+JOIN Order_Items oi
+    ON o.id = oi.order_id
+GROUP BY
+    c.id,
+    c.first_name,
+    c.last_name
+HAVING SUM(oi.quantity * oi.unit_price) > 30000;
 
 
 -- Task 19
 -- Display monthly sales.
 -- Display: year, month, revenue. Sort chronologically
 
-SELECT YEAR(o.order_date) as year_sales, MONTH(o.order_date) as month_sales, 
+SELECT
+    YEAR(o.order_date) as year_sales,
+    MONTH(o.order_date) as month_sales,
 	SUM(oi.quantity * oi.unit_price) as revenue
-FROM Orders o JOIN Order_Items oi ON o.id = oi.order_id 
-GROUP BY YEAR(order_date), MONTH(order_date) 
-ORDER BY YEAR(order_date), MONTH(order_date);
+FROM Orders o
+JOIN Order_Items oi
+    ON o.id = oi.order_id
+GROUP BY
+    YEAR(o.order_date),
+    MONTH(o.order_date)
+ORDER BY
+    YEAR(o.order_date),
+    MONTH(o.order_date);
 
 
 -- Task 20
@@ -171,9 +268,15 @@ ORDER BY YEAR(order_date), MONTH(order_date);
 -- Average Price = average product price
 -- Sort by revenue (descending)
 
-SELECT c.name AS category, COUNT(DISTINCT p.id) AS products,
+SELECT
+    c.name AS category,
+    COUNT(DISTINCT p.id) AS products,
 	SUM(oi.quantity*oi.unit_price) AS revenue,
     ROUND(AVG(p.price), 2) AS average_price
-FROM Categories c JOIN Products p ON c.id=p.category_id
-LEFT JOIN Order_Items oi ON p.id = oi.product_id
-GROUP BY c.id ORDER BY revenue DESC;
+FROM Categories c
+JOIN Products p
+    ON c.id = p.category_id
+LEFT JOIN Order_Items oi
+    ON p.id = oi.product_id
+GROUP BY c.id, c.name
+ORDER BY revenue DESC;
