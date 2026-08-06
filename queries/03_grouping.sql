@@ -200,7 +200,7 @@ HAVING COUNT(p.id) > 50;
 
 SELECT
     p.name,
-    SUM(oi.quantity*oi.unit_price) AS revenue
+    SUM(oi.quantity * oi.unit_price) AS revenue
 FROM Order_Items oi
 JOIN Products p
     ON p.id = oi.product_id
@@ -271,7 +271,7 @@ ORDER BY
 SELECT
     c.name AS category,
     COUNT(DISTINCT p.id) AS products,
-	SUM(oi.quantity*oi.unit_price) AS revenue,
+	SUM(oi.quantity * oi.unit_price) AS revenue,
     ROUND(AVG(p.price), 2) AS average_price
 FROM Categories c
 JOIN Products p
