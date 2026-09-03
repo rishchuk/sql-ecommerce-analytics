@@ -25,9 +25,11 @@ The project shows how transactional data can be stored, validated, analyzed, and
 ├── schema.sql
 ├── seed.sql
 ├── verify.sql
+├── docker-compose.yml
 ├── data-generator/
 │   ├── README.md
 │   ├── requirements.txt
+│   ├── Dockerfile
 │   └── generate_data.py
 ├── docs/
 │   └── er_diagram.png
@@ -58,6 +60,44 @@ The main relationships:
 * One order can contain many products
 * Products belong to categories
 * Orders can have payments
+
+---
+
+# Installation & Quick Start (Docker)
+
+The entire infrastructure of the project is fully dockerized. You don't need to install MySQL or Python locally to run and test this database.
+
+## Prerequisites
+
+* Installed **Docker** and **Docker Compose**
+* Created `.env` file based on the provided example. 
+
+To create your `.env` file, run this command in your terminal:
+```bash
+cp .env.example .env
+```
+
+Open the newly created `.env` file and set your custom password:
+```env
+DB_HOST=db_users
+DB_USER=root
+DB_PASSWORD=change-me
+DB_NAME=ecommerce
+DB_PORT=3306
+```
+
+
+## How to Run
+
+1. **Start the environment:**
+   Clone the repository, navigate to the root directory and run:
+   ```bash
+   docker compose up -d --build
+   ```
+
+2. **What happens under the hood:**
+   * **`db` service:** Launches MySQL 8.0 server, creates the `ecommerce` database, and automatically executes `schema.sql` to initialize all tables and constraints. It includes a `healthcheck` to ensure the server is ready.
+   * **`data-generator` service:** Waits until the MySQL server is fully healthy, then automatically runs the Python container, installs dependencies from `requirements.txt`, and executes `generate_data.py` to populate the database with realistic mock data.
 
 ---
 
