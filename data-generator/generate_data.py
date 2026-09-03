@@ -84,7 +84,7 @@ category_rows = [
 
 cursor.executemany(
     """
-    INSERT INTO categories(name)
+    INSERT INTO Categories(name)
     VALUES (%s)
     """,
     category_rows
@@ -118,7 +118,7 @@ for _ in range(CUSTOMERS_COUNT):
 
 cursor.executemany(
     """
-    INSERT INTO customers
+    INSERT INTO Customers
     (
         first_name,
         last_name,
@@ -204,7 +204,7 @@ for i in range(1, PRODUCTS_COUNT + 1):
 
 cursor.executemany(
     """
-    INSERT INTO products
+    INSERT INTO Products
     (
         category_id,
         name,
@@ -226,7 +226,7 @@ connection.commit()
 cursor.execute(
     """
     SELECT id, price
-    FROM products
+    FROM Products
     """
 )
 
@@ -277,7 +277,7 @@ for _ in range(ORDERS_COUNT):
 
 cursor.executemany(
     """
-    INSERT INTO orders
+    INSERT INTO Orders
     (
         customer_id,
         order_date,
@@ -298,7 +298,7 @@ connection.commit()
 cursor.execute(
     """
     SELECT id
-    FROM orders
+    FROM Orders
     """
 )
 
@@ -363,7 +363,7 @@ for order_id in orders:
 
 cursor.executemany(
     """
-    INSERT INTO order_items
+    INSERT INTO Order_Items
     (
         order_id,
         product_id,
@@ -384,7 +384,7 @@ for order_id, total in order_totals.items():
 
     cursor.execute(
         """
-        UPDATE orders
+        UPDATE Orders
         SET total_amount=%s
         WHERE id=%s
         """,
@@ -436,7 +436,7 @@ for order_id, amount in order_totals.items():
 
 cursor.executemany(
     """
-    INSERT INTO payments
+    INSERT INTO Payments
     (
         order_id,
         amount,

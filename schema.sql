@@ -109,10 +109,10 @@ CREATE INDEX idx_orders_status
 ON Orders(status);
 
 CREATE INDEX idx_order_items_order
-ON Order_items(order_id);
+ON Order_Items(order_id);
 
 CREATE INDEX idx_order_items_product
-ON Order_items(product_id);
+ON Order_Items(product_id);
 
 CREATE INDEX idx_payments_status
 ON Payments(status);
