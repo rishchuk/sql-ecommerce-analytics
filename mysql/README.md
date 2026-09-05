@@ -23,11 +23,8 @@ The project shows how transactional data can be stored, validated, analyzed, and
 ```
 mysql/
 ├── schema.sql
-├── seed.sql
 ├── verify.sql
 ├── docker-compose.yml
-├── docs/
-│   └── er_diagram.png
 ├── queries/
 │   ├── 01_basic.sql
 │   ├── 02_joins.sql
