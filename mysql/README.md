@@ -44,7 +44,7 @@ The database was created using a relational database model.
 
 ER diagram:
 
-![ER Diagram](docs/er_diagram.png)
+![ER Diagram](../docs/er_diagram.png)
 
 The main relationships:
 

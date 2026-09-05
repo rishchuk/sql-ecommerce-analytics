@@ -88,7 +88,7 @@ Main entities:
 
 ER diagram:
 
-![ER Diagram](mysql/docs/er_diagram.png)
+![ER Diagram](docs/er_diagram.png)
 
 Main relationships:
 
