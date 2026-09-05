@@ -21,16 +21,11 @@ The project shows how transactional data can be stored, validated, analyzed, and
 ## Project structure
 
 ```
-.
+mysql/
 ├── schema.sql
 ├── seed.sql
 ├── verify.sql
 ├── docker-compose.yml
-├── data-generator/
-│   ├── README.md
-│   ├── requirements.txt
-│   ├── Dockerfile
-│   └── generate_data.py
 ├── docs/
 │   └── er_diagram.png
 ├── queries/
@@ -90,7 +85,7 @@ DB_PORT=3306
 ## How to Run
 
 1. **Start the environment:**
-   Clone the repository, navigate to the root directory and run:
+   Clone the repository, navigate to the `mysql` directory and run:
    ```bash
    docker compose up -d --build
    ```
