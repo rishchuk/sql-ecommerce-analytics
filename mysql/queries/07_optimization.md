@@ -7,7 +7,7 @@ FROM Orders
 WHERE customer_id=10;
 ```
 
-![Alt text](../docs/task_1.png)
+![Alt text](../../docs/mysql/task_1.png)
 
 EXPLAIN shows that the index `idx_orders_customer` is being used.
 The access type is `ref`, as the search is performed based on an equality condition (`=`) using a non unique secondary index.
@@ -25,7 +25,7 @@ FROM Products
 WHERE category_id=3;
 ```
 
-![Alt text](../docs/task_2.png)
+![Alt text](../../docs/mysql/task_2.png)
 
 The index `idx_products_category` is used.
 The access type is `ref`, as the search is performed using a non unique index based on an equality condition.
@@ -43,7 +43,7 @@ FROM Orders
 WHERE status='PAID';
 ```
 
-![Alt text](../docs/task_3.png)
+![Alt text](../../docs/mysql/task_3.png)
 
 MySQL uses the index `idx_orders_status`. 
 The access type is `ref`, indicating a lookup using a non unique index. 
@@ -61,7 +61,7 @@ FROM Products
 WHERE name LIKE 'Mac%';
 ```
 
-![Alt text](../docs/task_4.png)
+![Alt text](../../docs/mysql/task_4.png)
 
 MySQL uses the index `idx_products_name`.
 The access type is `range` because the condition `LIKE 'Mac%'` specifies a contiguous range of values ​​within the B-tree index.
@@ -80,7 +80,7 @@ FROM Products
 WHERE name LIKE '%Mac%';
 ```
 
-![Alt text](../docs/task_5.png)
+![Alt text](../../docs/mysql/task_5.png)
 
 In this case, it is not possible to use an index.
 The `%` symbol at the beginning of the pattern means there is no fixed starting point for the string, so a B-tree index cannot determine the search range.
@@ -98,7 +98,7 @@ FROM Orders
 WHERE YEAR(order_date)=2025;
 ```
 
-![Alt text](../docs/task_6_1.png)
+![Alt text](../../docs/mysql/task_6_1.png)
 
 The first query performs a full table scan because the `YEAR()` function is applied to the indexed column. Since MySQL must evaluate the function for every row, the B-tree index on `order_date` cannot be used.
 
@@ -111,7 +111,7 @@ WHERE order_date
 BETWEEN '2025-01-01' AND '2025-12-31';
 ```
 
-![Alt text](../docs/task_6_2.png)
+![Alt text](../../docs/mysql/task_6_2.png)
 
 The second query uses a sargable range predicate (BETWEEN), which allows MySQL to use the `order_date index`. However, in this execution plan the optimizer still chooses a full table scan `(type = ALL)`, `(key = NULL)`. This is because the query returns a large portion of the table.
 
@@ -132,7 +132,7 @@ LEFT JOIN orders o
 GROUP BY c.id;
 ```
 
-![Alt text](../docs/task_7.png)
+![Alt text](../../docs/mysql/task_7.png)
 
 EXPLAIN shows that MySQL scans the customers table using the PRIMARY index (type = index). Since the query groups only by the primary key and selects only `c.id`, the primary index covers all required columns from the customers table. Therefore, the optimizer performs a covering index scan (Using index).
 
