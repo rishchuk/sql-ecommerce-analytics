@@ -404,7 +404,26 @@ def generate_payments(orders):
         )
 
 
+def clear_database():
+    tables = [
+        "Payments",
+        "Order_Items",
+        "Orders",
+        "Products",
+        "Customers",
+        "Categories",
+    ]
+
+    with engine.begin() as connection:
+        for table in tables:
+            connection.execute(
+                text(f"DELETE FROM {table}")
+            )
+
+
 def main():
+    clear_database()
+
     generate_categories()
 
     categories = get_categories()
