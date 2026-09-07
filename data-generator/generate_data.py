@@ -61,6 +61,19 @@ ORDER_STATUSES = [
     "CANCELLED",
 ]
 
+PAYMENT_STATUSES = [
+    "PENDING",
+    "COMPLETED",
+    "FAILED",
+    "REFUNDED",
+]
+
+PAYMENT_METHODS = [
+    "CARD",
+    "PAYPAL",
+    "BANK_TRANSFER",
+]
+
 
 def generate_categories():
     rows = []
@@ -267,6 +280,24 @@ def get_order_ids():
         return [row.id for row in result]
     
 
+def get_orders():
+    with engine.connect() as connection:
+        result = connection.execute(
+            text("""
+                SELECT id, total_amount
+                FROM Orders
+                ORDER BY id
+            """)
+        )
+
+        orders = {}
+
+        for row in result:
+            orders[row.id] = row.total_amount
+
+        return orders
+    
+
 def update_order_totals(order_totals):
     rows = []
 
@@ -340,6 +371,39 @@ def generate_order_items(order_ids, products):
     return order_totals
 
 
+def generate_payments(orders):
+    rows = []
+
+    for order_id, total_amount in orders.items():
+        rows.append({
+            "order_id": order_id,
+            "amount": total_amount,
+            "status": random.choice(PAYMENT_STATUSES),
+            "payment_method": random.choice(PAYMENT_METHODS),
+        })
+
+    with engine.begin() as connection:
+        connection.execute(
+            text("""
+                INSERT INTO Payments
+                (
+                    order_id,
+                    amount,
+                    status,
+                    payment_method
+                )
+                VALUES
+                (
+                    :order_id,
+                    :amount,
+                    :status,
+                    :payment_method
+                )
+            """),
+            rows
+        )
+
+
 def main():
     generate_categories()
 
@@ -359,6 +423,10 @@ def main():
     order_totals = generate_order_items(order_ids, products)
 
     update_order_totals(order_totals)
+
+    orders = get_orders()
+
+    generate_payments(orders)
 
 
 if __name__ == "__main__":
