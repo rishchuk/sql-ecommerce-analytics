@@ -265,6 +265,26 @@ def get_order_ids():
         )
 
         return [row.id for row in result]
+    
+
+def update_order_totals(order_totals):
+    rows = []
+
+    for order_id, total in order_totals.items():
+        rows.append({
+            "id": order_id,
+            "total_amount": total,
+        })
+
+    with engine.begin() as connection:
+        connection.execute(
+            text("""
+                UPDATE Orders
+                SET total_amount = :total_amount
+                WHERE id = :id
+            """),
+            rows
+        )
 
 
 def generate_order_items(order_ids, products):
@@ -338,8 +358,8 @@ def main():
 
     order_totals = generate_order_items(order_ids, products)
 
-    print(len(order_totals))
-    
+    update_order_totals(order_totals)
+
 
 if __name__ == "__main__":
     main()
