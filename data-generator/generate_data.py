@@ -57,4 +57,38 @@ def generate_categories():
             rows
         )
 
-generate_categories()
+
+def generate_customers():
+    rows = []
+
+    for _ in range(CUSTOMERS_COUNT):
+        rows.append({
+            "first_name": fake.first_name(),
+            "last_name": fake.last_name(),
+            "email": fake.unique.email(),
+            "city": fake.city(),
+        })
+
+    with engine.begin() as connection:
+        connection.execute(
+            text("""
+                INSERT INTO Customers
+                (
+                    first_name,
+                    last_name,
+                    email,
+                    city
+                )
+                VALUES
+                (
+                    :first_name,
+                    :last_name,
+                    :email,
+                    :city
+                )
+            """),
+            rows
+        )
+
+
+generate_customers()
