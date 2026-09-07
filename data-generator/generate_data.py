@@ -197,6 +197,24 @@ def generate_products(categories):
         )
 
 
+def get_products():
+    with engine.connect() as connection:
+        result = connection.execute(
+            text("""
+                SELECT id, price
+                FROM Products
+                ORDER BY id
+            """)
+        )
+
+        products = {}
+
+        for row in result:
+            products[row.id] = row.price
+
+        return products
+
+
 def generate_orders(customer_ids):
     rows = []
 
@@ -236,14 +254,92 @@ def generate_orders(customer_ids):
         )
 
 
-generate_categories()
+def get_order_ids():
+    with engine.connect() as connection:
+        result = connection.execute(
+            text("""
+                SELECT id
+                FROM Orders
+                ORDER BY id
+            """)
+        )
 
-categories = get_categories()
+        return [row.id for row in result]
 
-generate_customers()
 
-generate_products(categories)
+def generate_order_items(order_ids, products):
+    rows = []
+    order_totals = {}
 
-customer_ids = get_customer_ids()
+    product_ids = list(products.keys())
 
-generate_orders(customer_ids)
+    for order_id in order_ids:
+        total = 0
+
+        selected_products = random.sample(
+            product_ids,
+            random.randint(1, 5)
+        )
+
+        for product_id in selected_products:
+            quantity = random.randint(1, 5)
+            unit_price = products[product_id]
+
+            total += quantity * unit_price
+
+            rows.append({
+                "order_id": order_id,
+                "product_id": product_id,
+                "quantity": quantity,
+                "unit_price": unit_price,
+            })
+
+        order_totals[order_id] = total
+
+    with engine.begin() as connection:
+        connection.execute(
+            text("""
+                INSERT INTO Order_Items
+                (
+                    order_id,
+                    product_id,
+                    quantity,
+                    unit_price
+                )
+                VALUES
+                (
+                    :order_id,
+                    :product_id,
+                    :quantity,
+                    :unit_price
+                )
+            """),
+            rows
+        )
+
+    return order_totals
+
+
+def main():
+    generate_categories()
+
+    categories = get_categories()
+
+    generate_customers()
+
+    generate_products(categories)
+
+    customer_ids = get_customer_ids()
+
+    generate_orders(customer_ids)
+    
+    order_ids = get_order_ids()
+    products = get_products()
+
+    order_totals = generate_order_items(order_ids, products)
+
+    print(len(order_totals))
+    
+
+if __name__ == "__main__":
+    main()
