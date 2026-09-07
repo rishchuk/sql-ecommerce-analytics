@@ -53,6 +53,15 @@ PRICE_RANGES = {
     "Office": (50, 1000),
 }
 
+ORDER_STATUSES = [
+    "NEW",
+    "PAID",
+    "SHIPPED",
+    "DELIVERED",
+    "CANCELLED",
+]
+
+
 def generate_categories():
     rows = []
 
@@ -122,6 +131,19 @@ def generate_customers():
         )
 
 
+def get_customer_ids():
+    with engine.connect() as connection:
+        result = connection.execute(
+            text("""
+                SELECT id
+                FROM Customers
+                ORDER BY id
+            """)
+        )
+
+        return [row.id for row in result]
+
+
 def generate_products(categories):
     rows = []
 
@@ -134,7 +156,15 @@ def generate_products(categories):
 
         rows.append({
             "category_id": categories[category_name],
-            "name": fake.word().capitalize() + " Pro",
+            "name": fake.word().capitalize() + " " + random.choice(
+                [
+                    "Pro",
+                    "Ultra",
+                    "Max",
+                    "Air",
+                    "Elite"
+                ]
+            ),
             "sku": f"SKU-{i:06d}",
             "price": round(random.uniform(minimum, maximum), 2),
             "description": fake.text(max_nb_chars=100),
@@ -167,9 +197,53 @@ def generate_products(categories):
         )
 
 
+def generate_orders(customer_ids):
+    rows = []
+
+    for _ in range(ORDERS_COUNT):
+        rows.append({
+            "customer_id": random.choice(customer_ids),
+            "order_date": fake.date_time_between(
+                start_date="-2y",
+                end_date="now",
+            ),
+            "status": random.choice(ORDER_STATUSES),
+            "total_amount": 0,
+            "shipping_address": fake.address(),
+        })
+
+    with engine.begin() as connection:
+        connection.execute(
+            text("""
+                INSERT INTO Orders
+                (
+                    customer_id,
+                    order_date,
+                    status,
+                    total_amount,
+                    shipping_address
+                )
+                VALUES
+                (
+                    :customer_id,
+                    :order_date,
+                    :status,
+                    :total_amount,
+                    :shipping_address
+                )
+            """),
+            rows
+        )
+
+
 generate_categories()
 
 categories = get_categories()
 
 generate_customers()
+
 generate_products(categories)
+
+customer_ids = get_customer_ids()
+
+generate_orders(customer_ids)
